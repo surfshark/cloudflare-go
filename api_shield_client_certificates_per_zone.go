@@ -9,13 +9,11 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// PerZoneAPIShieldClientCertificateAuthorityDetails represents the metadata for a per zone API Shield mTLS client certificates authority.
 type PerZoneAPIShieldClientCertificateAuthorityDetails struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-// PerZoneAPIShieldClientCertificateDetails represents the metadata for a per zone API Shield mTLS client certificate.
 type PerZoneAPIShieldClientCertificateDetails struct {
 	Certificate          string                                            `json:"certificate"`
 	CertificateAuthority PerZoneAPIShieldClientCertificateAuthorityDetails `json:"certificate_authority"`
@@ -37,14 +35,21 @@ type PerZoneAPIShieldClientCertificateDetails struct {
 	ValidityDays         int                                               `json:"validity_days"`
 }
 
-// PerZoneAPIShieldClientCertificatesResponse represents the response from the per zone API Shield mTLS client certificate list endpoint.
 type PerZoneAPIShieldClientCertificatesResponse struct {
 	Response
 	Result []PerZoneAPIShieldClientCertificateDetails `json:"result"`
 }
 
-// ListPerZoneAPIShieldClientCertificates returns a list of API Shield mTLS client certificates per zone.
-//
+type PerZoneAPIShieldClientCertificateResponse struct {
+	Response
+	Result PerZoneAPIShieldClientCertificateDetails `json:"result"`
+}
+
+type PerZoneAPIShieldClientCertificateParams struct {
+	CSR          string `json:"csr"`
+	ValidityDays int    `json:"validity_days"`
+}
+
 // API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-list-client-certificates
 func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zoneID string) ([]PerZoneAPIShieldClientCertificateDetails, error) {
 	uri := fmt.Sprintf("/zones/%s/client_certificates", zoneID)
@@ -55,6 +60,34 @@ func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zone
 	var r PerZoneAPIShieldClientCertificatesResponse
 	if err := json.Unmarshal(res, &r); err != nil {
 		return []PerZoneAPIShieldClientCertificateDetails{}, fmt.Errorf("%s: %w", errUnmarshalError, err)
+	}
+	return r.Result, nil
+}
+
+// API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-create-client-certificate
+func (api *API) CreatePerZoneAPIShieldClientCertificate(ctx context.Context, zoneID string, params PerZoneAPIShieldClientCertificateParams) (PerZoneAPIShieldClientCertificateDetails, error) {
+	uri := fmt.Sprintf("/zones/%s/client_certificates", zoneID)
+	res, err := api.makeRequestContext(ctx, http.MethodPost, uri, params)
+	if err != nil {
+		return PerZoneAPIShieldClientCertificateDetails{}, err
+	}
+	var r PerZoneAPIShieldClientCertificateResponse
+	if err := json.Unmarshal(res, &r); err != nil {
+		return PerZoneAPIShieldClientCertificateDetails{}, fmt.Errorf("%s: %w", errUnmarshalError, err)
+	}
+	return r.Result, nil
+}
+
+// API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-client-certificate-details
+func (api *API) GetPerZoneAPIShieldClientCertificateDetails(ctx context.Context, zoneID, certificateID string) (PerZoneAPIShieldClientCertificateDetails, error) {
+	uri := fmt.Sprintf("/zones/%s/client_certificates/%s", zoneID, certificateID)
+	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return PerZoneAPIShieldClientCertificateDetails{}, err
+	}
+	var r PerZoneAPIShieldClientCertificateResponse
+	if err := json.Unmarshal(res, &r); err != nil {
+		return PerZoneAPIShieldClientCertificateDetails{}, fmt.Errorf("%s: %w", errUnmarshalError, err)
 	}
 	return r.Result, nil
 }
