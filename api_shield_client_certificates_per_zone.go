@@ -46,7 +46,6 @@ type PerZoneAPIShieldClientCertificateResponse struct {
 }
 
 type ListPerZoneAPIShieldClientCertificatesParams struct {
-	PaginationOptions
 	Status string `url:"status,omitempty"`
 }
 
@@ -57,8 +56,8 @@ type CreatePerZoneAPIShieldClientCertificateParams struct {
 
 // API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-list-client-certificates
 func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zoneID string, params ListPerZoneAPIShieldClientCertificatesParams) ([]PerZoneAPIShieldClientCertificateDetails, error) {
-	uri := fmt.Sprintf("/zones/%s/client_certificates", zoneID)
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, params)
+	uri := buildURI(fmt.Sprintf("/zones/%s/client_certificates", zoneID), params)
+	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return []PerZoneAPIShieldClientCertificateDetails{}, err
 	}
