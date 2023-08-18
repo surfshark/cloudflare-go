@@ -45,15 +45,20 @@ type PerZoneAPIShieldClientCertificateResponse struct {
 	Result PerZoneAPIShieldClientCertificateDetails `json:"result"`
 }
 
-type PerZoneAPIShieldClientCertificateParams struct {
+type ListPerZoneAPIShieldClientCertificatesParams struct {
+	PaginationOptions
+	Status string `url:"status,omitempty"`
+}
+
+type CreatePerZoneAPIShieldClientCertificateParams struct {
 	CSR          string `json:"csr"`
 	ValidityDays int    `json:"validity_days"`
 }
 
 // API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-list-client-certificates
-func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zoneID string) ([]PerZoneAPIShieldClientCertificateDetails, error) {
+func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zoneID string, params ListPerZoneAPIShieldClientCertificatesParams) ([]PerZoneAPIShieldClientCertificateDetails, error) {
 	uri := fmt.Sprintf("/zones/%s/client_certificates", zoneID)
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
+	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, params)
 	if err != nil {
 		return []PerZoneAPIShieldClientCertificateDetails{}, err
 	}
@@ -65,7 +70,7 @@ func (api *API) ListPerZoneAPIShieldClientCertificates(ctx context.Context, zone
 }
 
 // API reference: https://developers.cloudflare.com/api/operations/client-certificate-for-a-zone-create-client-certificate
-func (api *API) CreatePerZoneAPIShieldClientCertificate(ctx context.Context, zoneID string, params PerZoneAPIShieldClientCertificateParams) (PerZoneAPIShieldClientCertificateDetails, error) {
+func (api *API) CreatePerZoneAPIShieldClientCertificate(ctx context.Context, zoneID string, params CreatePerZoneAPIShieldClientCertificateParams) (PerZoneAPIShieldClientCertificateDetails, error) {
 	uri := fmt.Sprintf("/zones/%s/client_certificates", zoneID)
 	res, err := api.makeRequestContext(ctx, http.MethodPost, uri, params)
 	if err != nil {

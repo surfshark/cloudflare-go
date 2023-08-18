@@ -77,7 +77,7 @@ func TestListPerZoneAPIShieldClientCertificates(t *testing.T) {
 			ValidityDays:       3650,
 		},
 	}
-	actual, err := client.ListPerZoneAPIShieldClientCertificates(context.Background(), "023e105f4ecef8ad9ca31a8372d0c353")
+	actual, err := client.ListPerZoneAPIShieldClientCertificates(context.Background(), "023e105f4ecef8ad9ca31a8372d0c353", ListPerZoneAPIShieldClientCertificatesParams{})
 	if assert.NoError(t, err) {
 		assert.Equal(t, want, actual)
 	}
@@ -145,7 +145,7 @@ func TestCreatePerZoneAPIShieldClientCertificate(t *testing.T) {
 		Status:             "active",
 		ValidityDays:       3650,
 	}
-	params := PerZoneAPIShieldClientCertificateParams{
+	params := CreatePerZoneAPIShieldClientCertificateParams{
 		CSR:          "-----BEGIN CERTIFICATE REQUEST-----\nMIICY....\n-----END CERTIFICATE REQUEST-----\n",
 		ValidityDays: 3650,
 	}
