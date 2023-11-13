@@ -154,6 +154,15 @@ type AccessGroupSAML struct {
 	} `json:"saml"`
 }
 
+// AccessGroupAzureAuthContext is used to configure access based on Azure auth contexts.
+type AccessGroupAzureAuthContext struct {
+	AuthContext struct {
+		ID                 string `json:"id"`
+		IdentityProviderID string `json:"identity_provider_id"`
+		ACID               string `json:"ac_id"`
+	} `json:"auth_context"`
+}
+
 // AccessGroupAuthMethod is used for managing access by the "amr"
 // (Authentication Methods References) identifier. For example, an
 // application may want to require that users authenticate using a hardware
@@ -277,7 +286,7 @@ func (api *API) ListAccessGroups(ctx context.Context, rc *ResourceContainer, par
 		}
 		accessGroups = append(accessGroups, r.Result...)
 		params.ResultInfo = r.ResultInfo.Next()
-		if params.ResultInfo.Done() || autoPaginate {
+		if params.ResultInfo.Done() || !autoPaginate {
 			break
 		}
 	}

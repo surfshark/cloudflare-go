@@ -196,7 +196,7 @@ func TestListDNSRecords(t *testing.T) {
 				"count": 1,
 				"page": 1,
 				"per_page": 20,
-				"total_count": 2000
+				"total_count": 1
 			}
 		}`)
 	}
@@ -292,7 +292,7 @@ func TestListDNSRecordsSearch(t *testing.T) {
 				"count": 1,
 				"page": 1,
 				"per_page": 20,
-				"total_count": 2000
+				"total_count": 1
 			}
 		}`)
 	}
@@ -337,7 +337,7 @@ func TestListDNSRecordsSearch(t *testing.T) {
 		Tags:      []string{"tag1", "tag2"},
 	})
 	require.NoError(t, err)
-	assert.Equal(t, 2000, resultInfo.Total)
+	assert.Equal(t, 1, resultInfo.Total)
 
 	assert.Equal(t, want, actual)
 }
@@ -616,7 +616,63 @@ func TestUpdateDNSRecord_ClearComment(t *testing.T) {
 
 	_, err := client.UpdateDNSRecord(context.Background(), ZoneIdentifier(testZoneID), UpdateDNSRecordParams{
 		ID:      dnsRecordID,
-		Comment: "",
+		Comment: StringPtr(""),
+	})
+	require.NoError(t, err)
+}
+
+func TestUpdateDNSRecord_KeepComment(t *testing.T) {
+	setup()
+	defer teardown()
+
+	input := DNSRecord{
+		ID: "372e67954025e0ba6aaa6d586b9e0b59",
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, http.MethodPatch, r.Method, "Expected method 'PATCH', got %s", r.Method)
+
+		var v DNSRecord
+		err := json.NewDecoder(r.Body).Decode(&v)
+		require.NoError(t, err)
+		v.ID = "372e67954025e0ba6aaa6d586b9e0b59"
+		assert.Equal(t, input, v)
+
+		w.Header().Set("content-type", "application/json")
+		fmt.Fprint(w, `{
+			"success": true,
+			"errors": [],
+			"messages": [],
+			"result": {
+				"id": "372e67954025e0ba6aaa6d586b9e0b59",
+				"type": "A",
+				"name": "example.com",
+				"content": "198.51.100.4",
+				"proxiable": true,
+				"proxied": false,
+				"ttl": 120,
+				"locked": false,
+				"zone_id": "d56084adb405e0b7e32c52321bf07be6",
+				"zone_name": "example.com",
+				"created_on": "2014-01-01T05:20:00Z",
+				"modified_on": "2014-01-01T05:20:00Z",
+				"comment":null,
+				"tags":[],
+				"data": {},
+				"meta": {
+					"auto_added": true,
+					"source": "primary"
+				}
+			}
+		}`)
+	}
+
+	dnsRecordID := "372e67954025e0ba6aaa6d586b9e0b59"
+
+	mux.HandleFunc("/zones/"+testZoneID+"/dns_records/"+dnsRecordID, handler)
+
+	_, err := client.UpdateDNSRecord(context.Background(), ZoneIdentifier(testZoneID), UpdateDNSRecordParams{
+		ID: dnsRecordID,
 	})
 	require.NoError(t, err)
 }

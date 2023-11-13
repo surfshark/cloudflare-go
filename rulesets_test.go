@@ -241,7 +241,14 @@ func TestGetRuleset_SetCacheSettings(t *testing.T) {
 						}
 					}
 				},
-				"origin_error_page_passthru":true
+				"additional_cacheable_ports": [1,2,3,4],
+				"origin_cache_control": true,
+				"read_timeout": 1000,
+				"origin_error_page_passthru":true,
+				"cache_reserve": {
+					"eligible": true,
+					"minimum_file_size": 1000
+				}
 			},
 			"description": "Set all available cache settings in one rule",
 			"last_updated": "2020-12-18T09:28:09.655749Z",
@@ -324,7 +331,14 @@ func TestGetRuleset_SetCacheSettings(t *testing.T) {
 					},
 				},
 			},
-			OriginErrorPagePassthru: BoolPtr(true),
+			AdditionalCacheablePorts: []int{1, 2, 3, 4},
+			OriginCacheControl:       BoolPtr(true),
+			ReadTimeout:              UintPtr(1000),
+			OriginErrorPagePassthru:  BoolPtr(true),
+			CacheReserve: &RulesetRuleActionParametersCacheReserve{
+				Eligible:        BoolPtr(true),
+				MinimumFileSize: UintPtr(1000),
+			},
 		},
 		Description: "Set all available cache settings in one rule",
 		LastUpdated: &lastUpdated,
